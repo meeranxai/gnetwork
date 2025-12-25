@@ -13,16 +13,22 @@ const CreatePost = () => {
 
         try {
             const token = await currentUser.getIdToken();
-            const response = await fetch(`${API_BASE_URL}/api/posts/create`, {
+
+            // Backend uses Multer (Upload), so we must use FormData
+            const formData = new FormData();
+            formData.append('description', text);
+            formData.append('authorId', currentUser.uid);
+            formData.append('author', currentUser.displayName || 'User');
+            formData.append('authorAvatar', currentUser.photoURL || '');
+            // formData.append('image', file); // Future media support
+
+            const response = await fetch(`${API_BASE_URL}/api/posts`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    // 'Content-Type': 'multipart/form-data', // Skip content-type for FormData (let browser set boundary)
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    content: text,
-                    media: null // TODO: Add media handling
-                })
+                body: formData
             });
 
             if (response.ok) {
