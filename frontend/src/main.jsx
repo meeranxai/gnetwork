@@ -11,6 +11,7 @@ import './styles/profile.css'
 import './styles/chat.css'
 import './styles/whatsapp.css'
 import './styles/call.css'
+import './styles/login.css'
 
 // FontAwesome (You might want to install this via npm later, but for now CDN in index.html or import here if npm installed)
 // For verify, we'll assume the index.html template has it or we can import if downloaded. 
