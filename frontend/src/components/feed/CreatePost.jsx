@@ -48,7 +48,8 @@ const CreatePost = () => {
             } else {
                 const errorData = await response.json().catch(() => ({}));
                 console.error('Post failed', errorData);
-                alert(`Failed: ${errorData.message || response.statusText || 'Unknown Error'}`);
+                const msg = errorData.message || (await response.text()).substring(0, 100) || response.statusText;
+                alert(`Error ${response.status}: ${msg}`);
             }
         } catch (error) {
             console.error('Error posting:', error);
