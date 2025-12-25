@@ -1,9 +1,45 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_BASE_URL } from '../../api/config';
 
 const CreatePost = () => {
     const { currentUser } = useAuth();
     const [text, setText] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handlePost = async () => {
+        if (!text.trim() || !currentUser) return;
+        setLoading(true);
+
+        try {
+            const token = await currentUser.getIdToken();
+            const response = await fetch(`${API_BASE_URL}/api/posts/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    content: text,
+                    media: null // TODO: Add media handling
+                })
+            });
+
+            if (response.ok) {
+                setText('');
+                // Ideally refresh feed here (Needs context or reload)
+                window.location.reload();
+            } else {
+                console.error('Post failed');
+                alert('Failed to create post');
+            }
+        } catch (error) {
+            console.error('Error posting:', error);
+            alert('Error creating post');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <section className="create-composer glass-blur" id="inline-composer">
@@ -21,6 +57,7 @@ const CreatePost = () => {
                         rows="1"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
+                        disabled={loading}
                     ></textarea>
                 </div>
             </div>
@@ -38,8 +75,10 @@ const CreatePost = () => {
                     className="btn-post-minimal"
                     id="inline-post-btn"
                     style={{ display: text ? 'block' : 'none' }}
+                    onClick={handlePost}
+                    disabled={loading}
                 >
-                    Post
+                    {loading ? 'Posting...' : 'Post'}
                 </button>
             </div>
             <input type="file" id="inline-file-input" hidden accept="image/*" />
